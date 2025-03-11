@@ -1,4 +1,6 @@
 import { useState, useEffect } from 'react';
+import Papa from 'papaparse';
+import { FiDownload } from 'react-icons/fi';
 import { collection, getDocs, query, where, addDoc, deleteDoc, doc, updateDoc } from 'firebase/firestore';
 import { db } from '../lib/firebase';
 import { Users, Trash2, Plus, ArrowLeft, Edit2, Check, X } from 'lucide-react';
@@ -8,11 +10,67 @@ import toast from 'react-hot-toast';
 interface Student {
   id: string;
   name: string;
+  surname: string;
   class: string;
   school: string;
 }
 
 export default function StudentManagement() {
+  const [showExportModal, setShowExportModal] = useState(false);
+  const [selectedFormat, setSelectedFormat] = useState('csv');
+
+  const handleExport = (format: string) => {
+    const data = students.map(student => ({
+      nome: student.name,
+      cognome: student.surname,
+      classe: selectedClass,
+      scuola: selectedSchool
+    }));
+
+    if (format === 'csv') {
+      import('papaparse').then(papa => {
+        const csv = papa.unparse(data);
+        const blob = new Blob([csv], { type: 'text/csv' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `elenco-${selectedClass}-${selectedSchool}.${format}`;
+        a.click();
+        URL.revokeObjectURL(url);
+      });
+    } else if (format === 'xml') {
+      const xml = `<?xml version="1.0" encoding="UTF-8"?>
+        <elenco>
+          ${data.map(student => `
+            <studente>
+              <nome>${student.nome}</nome>
+              <cognome>${student.cognome}</cognome>
+              <classe>${student.classe}</classe>
+              <scuola>${student.scuola}</scuola>
+            </studente>
+          `).join('')}
+        </elenco>`;
+      const blob = new Blob([xml], { type: 'text/xml' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `elenco-${selectedClass}-${selectedSchool}.${format}`;
+      a.click();
+      URL.revokeObjectURL(url);
+    } else if (format === 'json') {
+      const jsonString = JSON.stringify(data, null, 2);
+      const blob = new Blob([jsonString], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `elenco-${selectedClass}-${selectedSchool}.${format}`;
+      a.click();
+      URL.revokeObjectURL(url);
+    }
+    
+    setShowExportModal(false);
+  };
+
   const [selectedSchool, setSelectedSchool] = useState('');
   const [selectedClass, setSelectedClass] = useState('');
   const [students, setStudents] = useState<Student[]>([]);
@@ -255,34 +313,39 @@ export default function StudentManagement() {
                                 aria-label="Modifica nome studente"
                                 autoFocus
                               />
-                              <button
-                                onClick={() => handleEditSave(student.id)}
-                                className="text-green-600 hover:text-green-700"
-                                title="Salva"
-                              >
-                                <Check className="h-5 w-5" />
-                              </button>
-                              <button
-                                onClick={handleEditCancel}
-                                className="text-gray-600 hover:text-gray-700"
-                                title="Annulla"
-                              >
-                                <X className="h-5 w-5" />
-                              </button>
-                            </div>
-                          ) : (
-                            <div className="flex items-center space-x-2">
-                              <span className="text-sm font-medium text-gray-900">
-                                {student.name}
-                              </span>
-                              <button
-                                onClick={() => handleEditStart(student)}
-                                className="text-blue-600 hover:text-blue-700"
-                                title="Modifica nome"
-                              >
-                                <Edit2 className="h-4 w-4" />
-                              </button>
-                            </div>
+              <button
+                onClick={() => setSelectedFormat('xml')}
+                className={`w-full text-left p-3 rounded ${
+                  selectedFormat === 'xml' ? 'bg-blue-500 text-white' : 'hover:bg-gray-100'
+                }`}
+              >
+                XML
+              </button>
+              <button
+                onClick={() => setSelectedFormat('json')}
+                className={`w-full text-left p-3 rounded ${
+                  selectedFormat === 'json' ? 'bg-blue-500 text-white' : 'hover:bg-gray-100'
+                }`}
+              >
+                JSON
+              </button>
+            </div>
+            <div className="flex justify-end space-x-3">
+              <button
+                onClick={() => setShowExportModal(false)}
+                className="bg-gray-500 hover:bg-gray-600 text-white font-bold py-2 px-4 rounded"
+              >
+                Annulla
+              </button>
+              <button
+                onClick={() => handleExport(selectedFormat)}
+                className="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded"
+              >
+                Esporta
+              </button>
+            </div>
+          </div>
+        </div>
                           )}
                         </div>
                         {editingStudent !== student.id && (
