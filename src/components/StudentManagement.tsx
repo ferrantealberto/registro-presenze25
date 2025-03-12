@@ -128,6 +128,26 @@ export default function StudentManagement() {
     }
   };
 
+  const handleExport = async () => {
+    if (students.length === 0) return;
+
+    const format = window.prompt('Seleziona il formato di esportazione (csv, json, xml):');
+    if (!format || (format !== 'csv' && format !== 'json' && format !== 'xml')) {
+      alert('Formato non valido. Scegli tra csv, json o xml.');
+      return;
+    }
+
+    const fileName = `${selectedClass}-${selectedSchool}.${format}`;
+    const formats = exportStudents(students);
+
+    try {
+      const blob = formats[format]();
+      saveAs(blob, fileName);
+    } catch (error) {
+      alert(`Errore durante l'esportazione in formato ${format}`);
+    }
+  };
+
   const exportStudents = (students: Student[]) => {
     const formattedStudents = students.map(student => ({
       ...student,
@@ -142,7 +162,7 @@ export default function StudentManagement() {
       },
       csv: () => {
         const headers = ['ID,Name,Surname,Class,School\n'];
-        const rows = formattedStudents.map(student => 
+        const rows = formattedStudents.map(student =>
           `${student.id},${student.name},${student.surname},${student.className},${student.school}\n`
         ).join('');
         return new Blob([headers + rows], { type: 'text/csv' });
@@ -266,20 +286,7 @@ export default function StudentManagement() {
             <div className="flex gap-4 mb-4">
               <button
                 className="flex items-center gap-2 px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors"
-                onClick={() => {
-                  if (students.length === 0) return;
-                  
-                  const formats = exportStudents(students);
-                  
-                  Object.entries(formats).forEach(([format, exporter]) => {
-                    try {
-                      const blob = exporter();
-                      saveAs(blob, `class-export.${format}`);
-                    } catch (error) {
-                      alert(`Errore durante l'esportazione in formato ${format}`);
-                    }
-                  });
-                }}
+                onClick={handleExport}
               >
                 <svg
                   className="w-5 h-5"
@@ -287,6 +294,29 @@ export default function StudentManagement() {
                   stroke="currentColor"
                   viewBox="0 0 24 24"
                 >
+const handleExport = async () => {
+  if (students.length === 0) return;
+
+  const format = window.prompt('Seleziona il formato di esportazione (csv, json, xml):');
+  if (!format || (format !== 'csv' && format !== 'json' && format !== 'xml')) {
+    alert('Formato non valido. Scegli tra csv, json o xml.');
+    return;
+  }
+
+  const fileName = `${selectedClass}-${selectedSchool}.${format}`;
+  const formats = exportStudents(students);
+
+  try {
+    const blob = formats[format]();
+    saveAs(blob, fileName);
+  } catch (error) {
+    alert(`Errore durante l'esportazione in formato ${format}`);
+  }
+};
+button
+                 className="flex items-center gap-2 px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors"
+                 onClick={handleExport}
+               >
                   <path
                     strokeLinecap="round"
                     strokeLinejoin="round"
