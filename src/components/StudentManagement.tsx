@@ -13,12 +13,6 @@ interface Student {
   class: string;
   school: string;
 }
-  id: string;
-  name: string;
-  surname: string;
-  class: string;
-  school: string;
-}
 
 export default function StudentManagement() {
   const [selectedSchool, setSelectedSchool] = useState('');
