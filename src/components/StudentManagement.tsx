@@ -285,6 +285,7 @@ export default function StudentManagement() {
 
             <div className="flex gap-4 mb-4">
               <button
+
                 className="flex items-center gap-2 px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors"
                 onClick={handleExport}
               >
@@ -294,29 +295,6 @@ export default function StudentManagement() {
                   stroke="currentColor"
                   viewBox="0 0 24 24"
                 >
-const handleExport = async () => {
-  if (students.length === 0) return;
-
-  const format = window.prompt('Seleziona il formato di esportazione (csv, json, xml):');
-  if (!format || (format !== 'csv' && format !== 'json' && format !== 'xml')) {
-    alert('Formato non valido. Scegli tra csv, json o xml.');
-    return;
-  }
-
-  const fileName = `${selectedClass}-${selectedSchool}.${format}`;
-  const formats = exportStudents(students);
-
-  try {
-    const blob = formats[format]();
-    saveAs(blob, fileName);
-  } catch (error) {
-    alert(`Errore durante l'esportazione in formato ${format}`);
-  }
-};
-button
-                 className="flex items-center gap-2 px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors"
-                 onClick={handleExport}
-               >
                   <path
                     strokeLinecap="round"
                     strokeLinejoin="round"
