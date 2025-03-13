@@ -14,6 +14,7 @@ import LessonCalendarModal from './calendar/LessonCalendarModal';
 import StudentList from './attendance/StudentList';
 import ActivityForm from './attendance/ActivityForm';
 import NotesModal from './attendance/NotesModal';
+import NotesSummaryModal from './reports/NotesSummaryModal.tsx'; // Verifica il percorso di importazione
 import AttendanceReport from './reports/AttendanceReport';
 
 interface Student {
@@ -55,6 +56,7 @@ export default function Dashboard() {
   const [printInReport, setPrintInReport] = useState(false);
   const [attendanceVerified, setAttendanceVerified] = useState<boolean>(false);
   const [showActivitySummary, setShowActivitySummary] = useState(false);
+const [showNotesSummary, setShowNotesSummary] = useState(false);
   const [showRealHoursSummary, setShowRealHoursSummary] = useState(false);
   const [showLessonCalendar, setShowLessonCalendar] = useState(false);
   const [currentActivity, setCurrentActivity] = useState<Activity | null>(null);
@@ -307,6 +309,7 @@ export default function Dashboard() {
                 setSelectedClass('');
               }}
               className="block w-48 px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+              title="Seleziona Scuola"
             >
               <option value="">Seleziona Scuola</option>
               {schools.map((school) => (
@@ -321,6 +324,8 @@ export default function Dashboard() {
               onChange={(e) => setSelectedClass(e.target.value)}
               disabled={!selectedSchool}
               className="block w-48 px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+              title="Seleziona Classe"
+              aria-label="Seleziona Classe"
             >
               <option value="">Seleziona Classe</option>
               {selectedSchool &&
@@ -336,23 +341,35 @@ export default function Dashboard() {
               value={attendanceDate}
               onChange={(e) => setAttendanceDate(e.target.value)}
               className="block w-48 px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+              placeholder="Seleziona Data"
+              aria-label="Seleziona Data"
             />
 
             <button
-              onClick={() => setShowActivitySummary(true)}
+              onClick={() => setShowActivitySummary(true)} // Verifica la logica del bottone
               className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700"
             >
               <Clock className="h-4 w-4 mr-2" />
               Riepilogo Ore
             </button>
-
-            <button
-              onClick={() => setShowRealHoursSummary(true)}
-              className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-green-600 hover:bg-green-700"
-            >
-              <BookOpen className="h-4 w-4 mr-2" />
-              Riepilogo ore in classe
-            </button>
+               <button
+                 onClick={() => setShowActivitySummary(true)}
+                 className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700"
+               >
+                 <Clock className="h-4 w-4 mr-2" />
+                 Riepilogo Ore
+               </button>
+               <button
+                 onClick={() => setShowRealHoursSummary(true)}
+                 className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-green-600 hover:bg-green-700"
+               >
+                 <BookOpen className="h-4 w-4 mr-2" />
+                 Riepilogo ore in classe
+               </button>
+               <label className="inline-flex items-center">
+                 <input type="checkbox" className="form-checkbox" onChange={() => setShowNotesSummary(!showNotesSummary)} />
+                 <span className="ml-2 text-sm font-medium text-gray-700">Visualizza Note</span>
+               </label>
 
             <button
               onClick={() => setShowLessonCalendar(true)}
@@ -457,6 +474,10 @@ export default function Dashboard() {
         onClose={() => setShowActivitySummary(false)}
       />
 
+       <NotesSummaryModal
+         isOpen={showNotesSummary}
+         onClose={() => setShowNotesSummary(false)}
+       />
       <RealHoursSummaryModal
         isOpen={showRealHoursSummary}
         onClose={() => setShowRealHoursSummary(false)}
