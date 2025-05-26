@@ -68,10 +68,6 @@ export default function Dashboard() {
   const [defaultStartTime, setDefaultStartTime] = useState<string | undefined>();
   const [defaultEndTime, setDefaultEndTime] = useState<string | undefined>();
   const [error, setError] = useState<string | null>(null);
-  const [printStatus, setPrintStatus] = useState<{printed: boolean; pdfCreated: boolean}>({
-    printed: false,
-    pdfCreated: false
-  });
 
   const reportRef = useRef<HTMLDivElement>(null);
 
