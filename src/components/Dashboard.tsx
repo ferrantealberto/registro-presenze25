@@ -61,6 +61,10 @@ const [showNotesSummary, setShowNotesSummary] = useState(false);
   const [showLessonCalendar, setShowLessonCalendar] = useState(false);
   const [currentActivity, setCurrentActivity] = useState<Activity | null>(null);
   const [selectedLesson, setSelectedLesson] = useState<any>(null);
+  const [printStatus, setPrintStatus] = useState<{printed: boolean; pdfCreated: boolean}>({
+    printed: false,
+    pdfCreated: false
+  });
   const [defaultStartTime, setDefaultStartTime] = useState<string | undefined>();
   const [defaultEndTime, setDefaultEndTime] = useState<string | undefined>();
   const [error, setError] = useState<string | null>(null);
@@ -385,11 +389,39 @@ const [showNotesSummary, setShowNotesSummary] = useState(false);
               <div className="px-4 py-5 sm:px-6 flex justify-between items-center">
                 <div>
                   <h3 className="text-lg leading-6 font-medium text-gray-900">
-                    Registro Presenze
+                    Registro Presenze 
                   </h3>
                   <p className="mt-1 max-w-2xl text-sm text-gray-500">
                     {selectedSchool} - {selectedClass} - {format(new Date(attendanceDate), 'dd MMMM yyyy', { locale: it })}
                   </p>
+                  <div className="flex items-center space-x-4 mt-2">
+                    <label className="inline-flex items-center cursor-pointer">
+                      <input
+                        type="checkbox"
+                        checked={printStatus.printed}
+                        onChange={() => setPrintStatus(prev => ({ ...prev, printed: !prev.printed }))}
+                        className="sr-only peer"
+                      />
+                      <div className="relative w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
+                      <span className="ms-3 text-sm font-medium text-gray-700 flex items-center">
+                        <Printer className="h-4 w-4 mr-1" />
+                        Stampa effettuata
+                      </span>
+                    </label>
+                    <label className="inline-flex items-center cursor-pointer">
+                      <input
+                        type="checkbox"
+                        checked={printStatus.pdfCreated}
+                        onChange={() => setPrintStatus(prev => ({ ...prev, pdfCreated: !prev.pdfCreated }))}
+                        className="sr-only peer"
+                      />
+                      <div className="relative w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
+                      <span className="ms-3 text-sm font-medium text-gray-700 flex items-center">
+                        <FileText className="h-4 w-4 mr-1" />
+                        PDF creato
+                      </span>
+                    </label>
+                  </div>
                 </div>
                 <div className="flex space-x-2">
                   <button
