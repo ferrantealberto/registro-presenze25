@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
-import { collection, getDocs, query, where, addDoc, Timestamp } from 'firebase/firestore';
+import { collection, getDocs, query, where, addDoc, Timestamp, getDoc, setDoc, serverTimestamp, doc } from 'firebase/firestore';
 import { db } from '../lib/firebase';
 import { format } from 'date-fns';
 import { it } from 'date-fns/locale';
@@ -7,6 +7,7 @@ import { calculateLessonHours } from '../utils/timeCalculations';
 import { useReactToPrint } from 'react-to-print';
 import html2pdf from 'html2pdf.js';
 import { BookOpen, Clock, Calendar, FileIcon, Printer, FileText } from 'lucide-react';
+import toast from 'react-hot-toast';
 import Header from './common/Header';
 import ActivitySummaryModal from './reports/ActivitySummaryModal';
 import RealHoursSummaryModal from './reports/RealHoursSummaryModal';
