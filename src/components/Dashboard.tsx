@@ -6,7 +6,7 @@ import { it } from 'date-fns/locale';
 import { calculateLessonHours } from '../utils/timeCalculations';
 import { useReactToPrint } from 'react-to-print';
 import html2pdf from 'html2pdf.js';
-import { BookOpen, Clock, Calendar, FileIcon, Printer } from 'lucide-react';
+import { BookOpen, Clock, Calendar, FileIcon, Printer, FileText } from 'lucide-react';
 import Header from './common/Header';
 import ActivitySummaryModal from './reports/ActivitySummaryModal';
 import RealHoursSummaryModal from './reports/RealHoursSummaryModal';
@@ -14,7 +14,7 @@ import LessonCalendarModal from './calendar/LessonCalendarModal';
 import StudentList from './attendance/StudentList';
 import ActivityForm from './attendance/ActivityForm';
 import NotesModal from './attendance/NotesModal';
-import NotesSummaryModal from './reports/NotesSummaryModal.tsx'; // Verifica il percorso di importazione
+import NotesSummaryModal from './reports/NotesSummaryModal.tsx';
 import AttendanceReport from './reports/AttendanceReport';
 
 interface Student {
@@ -56,7 +56,7 @@ export default function Dashboard() {
   const [printInReport, setPrintInReport] = useState(false);
   const [attendanceVerified, setAttendanceVerified] = useState<boolean>(false);
   const [showActivitySummary, setShowActivitySummary] = useState(false);
-const [showNotesSummary, setShowNotesSummary] = useState(false);
+  const [showNotesSummary, setShowNotesSummary] = useState(false);
   const [showRealHoursSummary, setShowRealHoursSummary] = useState(false);
   const [showLessonCalendar, setShowLessonCalendar] = useState(false);
   const [currentActivity, setCurrentActivity] = useState<Activity | null>(null);
@@ -350,7 +350,7 @@ const [showNotesSummary, setShowNotesSummary] = useState(false);
             />
 
             <button
-              onClick={() => setShowActivitySummary(true)} // Verifica la logica del bottone
+              onClick={() => setShowActivitySummary(true)}
               className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700"
             >
               <Clock className="h-4 w-4 mr-2" />
