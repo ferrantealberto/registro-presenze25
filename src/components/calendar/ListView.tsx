@@ -1,7 +1,7 @@
 import { format } from 'date-fns';
 import { it } from 'date-fns/locale';
-import { Edit, Trash2, FileText } from 'lucide-react';
-import { doc, deleteDoc, updateDoc } from 'firebase/firestore';
+import { Edit, Trash2, FileText, Printer } from 'lucide-react';
+import { doc, deleteDoc, updateDoc, setDoc } from 'firebase/firestore';
 import { db } from '../../lib/firebase';
 import toast from 'react-hot-toast';
 import { calculateLessonHours, calculateRealHours } from '../../utils/timeCalculations';
@@ -16,6 +16,11 @@ interface ListViewProps {
   onLessonUpdated: () => void;
 }
 
+interface PrintStatus {
+  printed: boolean;
+  pdfCreated: boolean;
+}
+
 export default function ListView({ 
   lessons, 
   totalCompletedHours, 
@@ -25,6 +30,10 @@ export default function ListView({
 }: ListViewProps) {
   const [sortedLessons, setSortedLessons] = useState(lessons);
   const [totalLessonHours, setTotalLessonHours] = useState(0);
+  const [printStatus, setPrintStatus] = useState<PrintStatus>({
+    printed: false,
+    pdfCreated: false
+  });
   const [includeNotesInPdf, setIncludeNotesInPdf] = useState(false);
 
   // Update sorted lessons when lessons prop changes
@@ -43,6 +52,22 @@ export default function ListView({
     const total = calculateRealHours(completedLessons);
     setTotalLessonHours(total);
   }, [lessons]);
+
+  const handlePrintStatusChange = async (type: 'printed' | 'pdfCreated') => {
+    try {
+      const newStatus = {
+        ...printStatus,
+        [type]: !printStatus[type]
+      };
+      setPrintStatus(newStatus);
+      
+      await setDoc(doc(db, 'printStatus', 'current'), newStatus);
+      toast.success(`Stato ${type === 'printed' ? 'stampa' : 'PDF'} aggiornato`);
+    } catch (error) {
+      console.error('Error updating print status:', error);
+      toast.error('Errore durante l\'aggiornamento dello stato');
+    }
+  };
 
   const handleLessonClick = (lesson: any) => {
     onLessonClick(lesson);
@@ -142,6 +167,34 @@ export default function ListView({
               </label>
             </div>
           </label>
+          <div className="flex items-center space-x-4">
+            <label className="inline-flex items-center cursor-pointer">
+              <input
+                type="checkbox"
+                checked={printStatus.printed}
+                onChange={() => handlePrintStatusChange('printed')}
+                className="sr-only peer"
+              />
+              <div className="relative w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
+              <span className="ms-3 text-sm font-medium text-gray-700 flex items-center">
+                <Printer className="h-4 w-4 mr-1" />
+                Stampa effettuata
+              </span>
+            </label>
+            <label className="inline-flex items-center cursor-pointer">
+              <input
+                type="checkbox"
+                checked={printStatus.pdfCreated}
+                onChange={() => handlePrintStatusChange('pdfCreated')}
+                className="sr-only peer"
+              />
+              <div className="relative w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
+              <span className="ms-3 text-sm font-medium text-gray-700 flex items-center">
+                <FileText className="h-4 w-4 mr-1" />
+                PDF creato
+              </span>
+            </label>
+          </div>
           <button
             onClick={handleExportPDF}
             className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700"
