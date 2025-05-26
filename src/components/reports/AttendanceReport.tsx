@@ -31,10 +31,14 @@ interface AttendanceReportProps {
     endTime: string;
     hours: number;
   } | null;
+  printStatus: {
+    printed: boolean;
+    pdfCreated: boolean;
+  };
 }
 
 const AttendanceReport = forwardRef<HTMLDivElement, AttendanceReportProps>(
-  ({ students, attendanceMap, notesMap, school, className, date, activity }, ref) => {
+  ({ students, attendanceMap, notesMap, school, className, date, activity, printStatus }, ref) => {
     return (
       <div ref={ref} className="bg-white" style={{ width: '297mm', height: '210mm', margin: '0 auto' }}>
         {/* Header */}
@@ -53,6 +57,14 @@ const AttendanceReport = forwardRef<HTMLDivElement, AttendanceReportProps>(
                 <span>DALLE ORE: {activity?.startTime}</span>
                 <span>ALLE ORE: {activity?.endTime}</span>
                 <span>CLASSE: {className}</span>
+              </div>
+              <div className="flex items-center gap-4 mt-2">
+                <span className={`text-sm ${printStatus.printed ? 'text-green-600' : 'text-gray-500'}`}>
+                  Stampa {printStatus.printed ? 'effettuata' : 'non effettuata'}
+                </span>
+                <span className={`text-sm ${printStatus.pdfCreated ? 'text-green-600' : 'text-gray-500'}`}>
+                  PDF {printStatus.pdfCreated ? 'creato' : 'non creato'}
+                </span>
               </div>
             </div>
           </div>

@@ -511,6 +511,7 @@ export default function Dashboard() {
                       className={selectedClass}
                       date={attendanceDate}
                       activity={currentActivity}
+                      printStatus={printStatus}
                     />
                   </div>
                 </>
