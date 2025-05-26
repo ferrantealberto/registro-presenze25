@@ -1,7 +1,7 @@
 import { format } from 'date-fns';
 import { it } from 'date-fns/locale';
 import { Edit, Trash2, FileText, Printer } from 'lucide-react';
-import { doc, deleteDoc, updateDoc, setDoc } from 'firebase/firestore';
+import { doc, deleteDoc, updateDoc, setDoc, serverTimestamp } from 'firebase/firestore';
 import { db } from '../../lib/firebase';
 import toast from 'react-hot-toast';
 import { calculateLessonHours, calculateRealHours } from '../../utils/timeCalculations';
@@ -55,17 +55,23 @@ export default function ListView({
 
   const handlePrintStatusChange = async (type: 'printed' | 'pdfCreated') => {
     try {
+      const currentLesson = sortedLessons[0];
+      if (!currentLesson) {
+        toast.error('Nessuna lezione selezionata');
+        return;
+      }
+
       const newStatus = {
         ...printStatus,
         [type]: !printStatus[type]
       };
       setPrintStatus(newStatus);
       
-      await setDoc(doc(db, 'printStatus', `${lesson.school}-${lesson.class}-${format(lesson.date.toDate(), 'yyyy-MM-dd')}`), {
+      await setDoc(doc(db, 'printStatus', `${currentLesson.school}-${currentLesson.class}-${format(currentLesson.date.toDate(), 'yyyy-MM-dd')}`), {
         ...newStatus,
-        school: lesson.school,
-        class: lesson.class,
-        date: lesson.date,
+        school: currentLesson.school,
+        class: currentLesson.class,
+        date: currentLesson.date,
         timestamp: serverTimestamp()
       });
       toast.success(`Stato ${type === 'printed' ? 'stampa' : 'PDF'} aggiornato`);
