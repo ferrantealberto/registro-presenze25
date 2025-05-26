@@ -68,6 +68,10 @@ export default function Dashboard() {
   const [defaultStartTime, setDefaultStartTime] = useState<string | undefined>();
   const [defaultEndTime, setDefaultEndTime] = useState<string | undefined>();
   const [error, setError] = useState<string | null>(null);
+  const [printStatus, setPrintStatus] = useState<{printed: boolean; pdfCreated: boolean}>({
+    printed: false,
+    pdfCreated: false
+  });
 
   const reportRef = useRef<HTMLDivElement>(null);
 
@@ -114,6 +118,28 @@ export default function Dashboard() {
       setShowLessonCalendar(false);
     }
   }, [window.location.search]);
+
+  const handlePrintStatusChange = async (type: 'printed' | 'pdfCreated') => {
+    try {
+      const newStatus = {
+        ...printStatus,
+        [type]: !printStatus[type]
+      };
+      setPrintStatus(newStatus);
+      
+      await setDoc(doc(db, 'printStatus', `${selectedSchool}-${selectedClass}-${attendanceDate}`), {
+        ...newStatus,
+        school: selectedSchool,
+        class: selectedClass,
+        date: new Date(attendanceDate),
+        timestamp: serverTimestamp()
+      });
+      toast.success(`Stato ${type === 'printed' ? 'stampa' : 'PDF'} aggiornato`);
+    } catch (error) {
+      console.error('Error updating print status:', error);
+      toast.error('Errore durante l\'aggiornamento dello stato');
+    }
+  };
 
   useEffect(() => {
     const fetchStudents = async () => {
@@ -174,6 +200,17 @@ export default function Dashboard() {
         
         setAttendanceMap(newAttendanceMap);
         setNotesMap(newNotesMap);
+
+        // Fetch print status
+        const printStatusDoc = await getDoc(doc(db, 'printStatus', `${selectedSchool}-${selectedClass}-${attendanceDate}`));
+        if (printStatusDoc.exists()) {
+          setPrintStatus({
+            printed: printStatusDoc.data().printed || false,
+            pdfCreated: printStatusDoc.data().pdfCreated || false
+          });
+        } else {
+          setPrintStatus({ printed: false, pdfCreated: false });
+        }
 
         const activityQuery = query(
           collection(db, 'activities'),
@@ -399,7 +436,7 @@ export default function Dashboard() {
                       <input
                         type="checkbox"
                         checked={printStatus.printed}
-                        onChange={() => setPrintStatus(prev => ({ ...prev, printed: !prev.printed }))}
+                        onChange={() => handlePrintStatusChange('printed')}
                         className="sr-only peer"
                       />
                       <div className="relative w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
@@ -412,7 +449,7 @@ export default function Dashboard() {
                       <input
                         type="checkbox"
                         checked={printStatus.pdfCreated}
-                        onChange={() => setPrintStatus(prev => ({ ...prev, pdfCreated: !prev.pdfCreated }))}
+                        onChange={() => handlePrintStatusChange('pdfCreated')}
                         className="sr-only peer"
                       />
                       <div className="relative w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>

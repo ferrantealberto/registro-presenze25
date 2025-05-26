@@ -61,7 +61,13 @@ export default function ListView({
       };
       setPrintStatus(newStatus);
       
-      await setDoc(doc(db, 'printStatus', 'current'), newStatus);
+      await setDoc(doc(db, 'printStatus', `${lesson.school}-${lesson.class}-${format(lesson.date.toDate(), 'yyyy-MM-dd')}`), {
+        ...newStatus,
+        school: lesson.school,
+        class: lesson.class,
+        date: lesson.date,
+        timestamp: serverTimestamp()
+      });
       toast.success(`Stato ${type === 'printed' ? 'stampa' : 'PDF'} aggiornato`);
     } catch (error) {
       console.error('Error updating print status:', error);
